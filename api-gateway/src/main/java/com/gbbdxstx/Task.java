@@ -16,7 +16,7 @@
  */
 package com.gbbdxstx;
 
-import com.yupi.springbootinit.provider.DemoService;
+import com.gbbdxstx.provider.DemoService;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
