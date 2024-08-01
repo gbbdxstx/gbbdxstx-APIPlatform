@@ -1,0 +1,8 @@
+server:
+  port: 8102
+  servlet:
+    context-path: /api
+api:
+  client:
+    access-key: 1
+    secret-key: 2

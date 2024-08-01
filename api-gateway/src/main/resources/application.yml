@@ -1,0 +1,21 @@
+server:
+  port: 8103
+spring:
+  cloud:
+    gateway:
+      # 路由转发: 前置匹配断言
+      routes:
+        - id: api_route
+          uri: http://localhost:8102
+          predicates:
+            - Path=/api/**
+      default-filters:
+        - AddResponseHeader=source, gbbdxstx
+dubbo:
+  application:
+    name: dubbo-springboot-demo-consumer
+    logger: slf4j
+    qos-port: 33333
+  registry:
+    address: nacos://${nacos.address:127.0.0.1}:8848?username=nacos&password=nacos
+    cache-file: D:/software/nacos/.mapping.dubbo.cache
