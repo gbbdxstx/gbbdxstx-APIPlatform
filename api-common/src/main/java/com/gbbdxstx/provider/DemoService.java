@@ -16,10 +16,9 @@ public interface DemoService {
     /**
      * 根据ak,sk获取用户信息
      * @param accessKey
-     * @param secretKey
      * @return
      */
-    User getInvokeUser(String accessKey, String secretKey);
+    User getInvokeUser(String accessKey);
 
     /**
      * 根据请求路径和方法获取接口信息

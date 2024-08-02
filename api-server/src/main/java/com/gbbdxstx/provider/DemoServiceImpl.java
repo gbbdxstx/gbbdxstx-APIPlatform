@@ -63,17 +63,15 @@ public class DemoServiceImpl implements DemoService {
     /**
      * 根据ak,sk获得用户信息
      * @param accessKey
-     * @param secretKey
      * @return
      */
     @Override
-    public User getInvokeUser(String accessKey, String secretKey) {
-        if (StringUtils.isAnyBlank(accessKey, secretKey)) {
+    public User getInvokeUser(String accessKey) {
+        if (StringUtils.isAnyBlank(accessKey)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("accessKey", accessKey);
-        queryWrapper.eq("secretKey", secretKey);
         return userMapper.selectOne(queryWrapper);
     }
 

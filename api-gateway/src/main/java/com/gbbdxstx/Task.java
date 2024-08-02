@@ -19,11 +19,10 @@ package com.gbbdxstx;
 import com.gbbdxstx.provider.DemoService;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-@Component
+//@Component
 public class Task implements CommandLineRunner {
 
     @DubboReference

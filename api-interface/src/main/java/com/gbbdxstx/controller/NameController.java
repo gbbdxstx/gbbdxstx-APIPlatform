@@ -1,12 +1,9 @@
 package com.gbbdxstx.controller;
 
 import com.gbbdxstx.gbbdxstxapiclientsdk.model.User;
-import com.gbbdxstx.gbbdxstxapiclientsdk.utils.SignUtil;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 /**
  * 名称API
@@ -27,7 +24,7 @@ public class NameController {
 
     @PostMapping("/user")
     public String getUsernameByPost(@RequestBody User user, HttpServletRequest request) {
-        String accessKey = request.getHeader("accessKey");
+        /*String accessKey = request.getHeader("accessKey");
         String nonce = request.getHeader("nonce");
         String encodedBody = request.getHeader("body");
         String body = URLDecoder.decode(encodedBody, StandardCharsets.UTF_8);
@@ -49,7 +46,7 @@ public class NameController {
         String serverSign = SignUtil.getSign(body, "2");
         if (!sign.equals(serverSign)) {
             throw new RuntimeException("无权限");
-        }
+        }*/
         String result =  "POST 用户名是" + user.getUsername();
         return result;
     }

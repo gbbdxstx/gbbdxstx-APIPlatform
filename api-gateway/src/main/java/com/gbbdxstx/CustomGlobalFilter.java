@@ -1,10 +1,16 @@
 package com.gbbdxstx;
 
 import com.gbbdxstx.gbbdxstxapiclientsdk.utils.SignUtil;
+import com.gbbdxstx.model.entity.InterfaceInfo;
+import com.gbbdxstx.model.entity.User;
+import com.gbbdxstx.provider.DemoService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.reactivestreams.Publisher;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.cloud.gateway.route.Route;
+import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
@@ -33,15 +39,25 @@ import java.util.List;
 @Slf4j
 public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
+    @DubboReference
+    private DemoService demoService;
+
     private static final List<String> IP_WHITE_LIST = Arrays.asList("0:0:0:0:0:0:0:1", "127.0.0.1");
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         // 1.请求日志
         ServerHttpRequest request = exchange.getRequest();
+        // 获得请求到网关的完整url信息
+        String originUrl = request.getURI().toString();
+        // 获得网关转发后的路由信息
+        Route route = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR);
+        String urlBefore = route.getUri().toString();
+        String url = urlBefore +  request.getPath().value();
+        String method = request.getMethod().toString();
         log.info("请求唯一标识: {}", request.getId());
-        log.info("请求路径: {}", request.getPath().value());
-        log.info("请求方法: {}", request.getMethod());
+        log.info("请求路径: {}", url);
+        log.info("请求方法: {}", method);
         log.info("请求参数: {}", request.getQueryParams());
         String sourceAddress = request.getLocalAddress().getHostString();
         log.info("请求来源地址: {}", sourceAddress);
@@ -60,13 +76,19 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         String encodedBody = headers.getFirst("body");
         String body = URLDecoder.decode(encodedBody, StandardCharsets.UTF_8);
         String timestamp = headers.getFirst("timestamp");
-        String sign = headers.getFirst("sign");
+        String sign = headers.getFirst("sign"); // 用户传过来的密钥
         // todo 实际情况去数据库中查询是否分配给用户
-        if (!"1".equals(accessKey)) {
+        User invokeUser = null;
+        try {
+            invokeUser = demoService.getInvokeUser(accessKey);
+        } catch (Exception e) {
+            log.error("getInvokeUser error", e);
+        }
+        if (invokeUser == null) {
             return handleNoAuth(response);
         }
         // todo 随机数nonce 利用hashmap或redis存进行校验
-        if (Long.parseLong(nonce) > 10000) {
+        if (Long.parseLong(nonce) > 10000L) {
             return handleNoAuth(response);
         }
         // todo 时间和当前时间不能超过 5 分钟
@@ -75,18 +97,29 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         if (currentTime - Long.parseLong(timestamp) > FIVE_MINUTES) {
             return handleNoAuth(response);
         }
-        // todo 实际情况中将分配给用户的secretKey从数据库查出来用于生成sign
-        String serverSign = SignUtil.getSign(body, "2");
-        if (!sign.equals(serverSign)) {
+        // 将分配给用户的secretKey从数据库查出来用于生成sign
+        String secretKey = invokeUser.getSecretKey();
+        String serverSign = SignUtil.getSign(body, secretKey);
+        if (sign == null || !sign.equals(serverSign)) {
             return handleNoAuth(response);
         }
-        // todo 4. 请求的模拟接口是否存在
-
+        // 判断请求的模拟接口是否存在
+        InterfaceInfo interfaceInfo = null;
+        try {
+            interfaceInfo = demoService.getInterfaceInfo(url, method);
+        } catch (Exception e) {
+            log.error("getInterfaceInfo error", e);
+        }
+        if (interfaceInfo == null) {
+            return handleNoAuth(response);
+        }
         // 5. 请求转发, 调用模拟接口
         Mono<Void> filter = chain.filter(exchange);
 
         // 6. 响应日志
         log.info("响应: {}", response.getStatusCode());
+        Long userId = invokeUser.getId();
+        Long interfaceInfoId = interfaceInfo.getId();
         try {
             DataBufferFactory bufferFactory = response.bufferFactory();
             HttpStatus statusCode = response.getStatusCode();
@@ -100,7 +133,12 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
                         Flux<? extends DataBuffer> fluxBody = Flux.from(body);
 
                         return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
-                            // todo 7. 调用成功, 调用次数加1
+                            // 7. 调用成功, 调用次数加1
+                            try {
+                                demoService.invokeCount(userId, interfaceInfoId);
+                            } catch (Exception e) {
+                                log.error("invokeCount error", e);
+                            }
                             // 合并多个流集合，解决返回体分段传输
                             DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
                             DataBuffer buff = dataBufferFactory.join(dataBuffers);
@@ -114,10 +152,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
                             rspArgs.add(response.getStatusCode().value());
                             rspArgs.add(exchange.getRequest().getURI());
                             rspArgs.add(result);
-                            log.info("<-- {} {}\n{}", rspArgs.toArray());
-                            // 响应成功, 打印日志
-                            log.info("响应结果: {}", result);
-
+                            log.info("响应结果: <-- {} {}\n{}", rspArgs.toArray());
 
                             getDelegate().getHeaders().setContentLength(result.getBytes().length);
                             return bufferFactory.wrap(result.getBytes());
