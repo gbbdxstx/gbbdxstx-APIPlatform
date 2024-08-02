@@ -2,10 +2,10 @@ package com.gbbdxstx.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gbbdxstx.dto.user.UserQueryRequest;
-import com.gbbdxstx.entity.User;
-import com.gbbdxstx.vo.LoginUserVO;
-import com.gbbdxstx.vo.UserVO;
+import com.gbbdxstx.model.dto.user.UserQueryRequest;
+import com.gbbdxstx.model.entity.User;
+import com.gbbdxstx.model.vo.LoginUserVO;
+import com.gbbdxstx.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

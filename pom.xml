@@ -31,10 +31,10 @@
     </scm>
 
     <modules>
-        <module>api-model</module>
         <module>api-common</module>
         <module>api-interface</module>
         <module>api-server</module>
+        <module>api-gateway</module>
     </modules>
 
     <!--版本锁定-->

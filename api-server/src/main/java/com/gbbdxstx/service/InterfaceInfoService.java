@@ -3,9 +3,9 @@ package com.gbbdxstx.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gbbdxstx.dto.interfaceinfo.InterfaceInfoQueryRequest;
-import com.gbbdxstx.entity.InterfaceInfo;
-import com.gbbdxstx.vo.InterfaceInfoVO;
+import com.gbbdxstx.model.dto.interfaceinfo.InterfaceInfoQueryRequest;
+import com.gbbdxstx.model.entity.InterfaceInfo;
+import com.gbbdxstx.model.vo.InterfaceInfoVO;
 
 import javax.servlet.http.HttpServletRequest;
 

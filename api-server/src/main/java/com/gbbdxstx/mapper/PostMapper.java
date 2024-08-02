@@ -1,7 +1,7 @@
 package com.gbbdxstx.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.gbbdxstx.entity.Post;
+import com.gbbdxstx.model.entity.Post;
 import java.util.Date;
 import java.util.List;
 

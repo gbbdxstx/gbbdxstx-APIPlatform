@@ -1,7 +1,7 @@
 package com.gbbdxstx.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.gbbdxstx.entity.User;
+import com.gbbdxstx.model.entity.User;
 
 
 /**

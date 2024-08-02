@@ -2,10 +2,10 @@ package com.gbbdxstx.controller;
 
 import cn.hutool.core.io.FileUtil;
 import com.gbbdxstx.constant.FileConstant;
-import com.gbbdxstx.dto.file.UploadFileRequest;
-import com.gbbdxstx.entity.User;
+import com.gbbdxstx.model.dto.file.UploadFileRequest;
+import com.gbbdxstx.model.entity.User;
 import com.gbbdxstx.enumeration.ErrorCode;
-import com.gbbdxstx.enums.FileUploadBizEnum;
+import com.gbbdxstx.model.enums.FileUploadBizEnum;
 import com.gbbdxstx.exception.BusinessException;
 import com.gbbdxstx.manager.CosManager;
 import com.gbbdxstx.response.BaseResponse;

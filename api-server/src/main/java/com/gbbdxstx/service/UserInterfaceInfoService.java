@@ -2,8 +2,8 @@ package com.gbbdxstx.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gbbdxstx.dto.userinterfaceinfo.UserInterfaceInfoQueryRequest;
-import com.gbbdxstx.entity.UserInterfaceInfo;
+import com.gbbdxstx.model.dto.userinterfaceinfo.UserInterfaceInfoQueryRequest;
+import com.gbbdxstx.model.entity.UserInterfaceInfo;
 
 
 /**

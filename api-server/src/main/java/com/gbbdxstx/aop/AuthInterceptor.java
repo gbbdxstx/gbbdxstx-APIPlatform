@@ -1,9 +1,9 @@
 package com.gbbdxstx.aop;
 
 import com.gbbdxstx.annotation.AuthCheck;
-import com.gbbdxstx.entity.User;
+import com.gbbdxstx.model.entity.User;
 import com.gbbdxstx.enumeration.ErrorCode;
-import com.gbbdxstx.enums.UserRoleEnum;
+import com.gbbdxstx.model.enums.UserRoleEnum;
 import com.gbbdxstx.exception.BusinessException;
 import com.gbbdxstx.service.UserService;
 import org.aspectj.lang.ProceedingJoinPoint;
