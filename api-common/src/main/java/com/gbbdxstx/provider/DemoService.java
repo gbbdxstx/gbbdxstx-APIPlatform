@@ -4,6 +4,9 @@ package com.gbbdxstx.provider;
 import com.gbbdxstx.model.entity.InterfaceInfo;
 import com.gbbdxstx.model.entity.User;
 
+/**
+ * 网关服务公共接口
+ */
 public interface DemoService {
 
     String sayHello(String name);

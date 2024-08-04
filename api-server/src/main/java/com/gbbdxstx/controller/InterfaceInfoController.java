@@ -4,24 +4,23 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gbbdxstx.annotation.AuthCheck;
 import com.gbbdxstx.constant.InterfaceConstant;
 import com.gbbdxstx.constant.UserConstant;
+import com.gbbdxstx.enumeration.ErrorCode;
+import com.gbbdxstx.exception.BusinessException;
+import com.gbbdxstx.exception.ThrowUtils;
+import com.gbbdxstx.gbbdxstxapiclientsdk.client.ApiClient;
 import com.gbbdxstx.model.dto.interfaceinfo.InterfaceInfoAddRequest;
 import com.gbbdxstx.model.dto.interfaceinfo.InterfaceInfoInvokeRequest;
 import com.gbbdxstx.model.dto.interfaceinfo.InterfaceInfoQueryRequest;
 import com.gbbdxstx.model.dto.interfaceinfo.InterfaceInfoUpdateRequest;
 import com.gbbdxstx.model.entity.InterfaceInfo;
 import com.gbbdxstx.model.entity.User;
-import com.gbbdxstx.enumeration.ErrorCode;
-import com.gbbdxstx.exception.BusinessException;
-import com.gbbdxstx.exception.ThrowUtils;
-import com.gbbdxstx.gbbdxstxapiclientsdk.client.ApiClient;
+import com.gbbdxstx.model.vo.InterfaceInfoVO;
 import com.gbbdxstx.request.DeleteRequest;
 import com.gbbdxstx.request.IdRequest;
 import com.gbbdxstx.response.BaseResponse;
 import com.gbbdxstx.service.InterfaceInfoService;
 import com.gbbdxstx.service.UserService;
 import com.gbbdxstx.utils.ResultUtils;
-import com.gbbdxstx.model.vo.InterfaceInfoVO;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -29,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 /**
  * 接口管理接口
@@ -97,6 +97,33 @@ public class InterfaceInfoController {
         boolean b = interfaceInfoService.removeById(id);
         return ResultUtils.success(b);
     }
+
+    /**
+     * 批量删除
+     * @param deleteRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/batchDelete")
+    public BaseResponse<Boolean> batchDeleteInterfaceInfo(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+        if (deleteRequest == null || deleteRequest.getIds() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getLoginUser(request);
+        Long[] ids = deleteRequest.getIds();
+        // 判断是否存在
+        for (Long id : ids) {
+            InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+            ThrowUtils.throwIf(oldInterfaceInfo == null, ErrorCode.NOT_FOUND_ERROR);
+        }
+        // 仅本人或管理员可删除
+        //if (!oldInterfaceInfo.getUserId().equals(user.getId()) && !userService.isAdmin(request)) {
+        //    throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        //}
+        boolean b = interfaceInfoService.removeByIds(Arrays.asList(ids));
+        return ResultUtils.success(b);
+    }
+
 
     /**
      * 更新（仅管理员）
@@ -275,10 +302,11 @@ public class InterfaceInfoController {
         User loginUser = userService.getLoginUser(request);
         String accessKey = loginUser.getAccessKey();
         String secretKey = loginUser.getSecretKey();
-        Gson gson = new Gson();
-        com.gbbdxstx.gbbdxstxapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.gbbdxstx.gbbdxstxapiclientsdk.model.User.class);
+        //Gson gson = new Gson();
+        //com.gbbdxstx.gbbdxstxapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.gbbdxstx.gbbdxstxapiclientsdk.model.User.class);
         ApiClient tempApiClient = new ApiClient(accessKey, secretKey);
-        String usernameByPost = tempApiClient.getUsernameByPost(user);
+        //String usernameByPost = tempApiClient.getUsernameByPost(user);
+        String usernameByPost = tempApiClient.getNameByGet(userRequestParams);
         return ResultUtils.success(usernameByPost);
     }
 

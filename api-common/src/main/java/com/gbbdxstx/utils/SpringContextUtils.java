@@ -2,8 +2,11 @@ package com.gbbdxstx.utils;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -51,5 +54,36 @@ public class SpringContextUtils implements ApplicationContextAware {
      */
     public static <T> T getBean(String beanName, Class<T> beanClass) {
         return applicationContext.getBean(beanName, beanClass);
+    }
+
+    /**
+     * 注册单例Bean
+     * @param beanName
+     * @param singletonObject
+     */
+    public static void registerSingleton(String beanName, Object singletonObject) {
+        ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
+        DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
+        beanFactory.registerSingleton(beanName, singletonObject);
+    }
+
+    /**
+     * 销毁实例
+     * @param beanName
+     */
+    public static void removeSingleton(String beanName) {
+        ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
+        DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
+        if (beanFactory.containsSingleton(beanName)) {
+            Object bean = beanFactory.getSingleton(beanName);
+            beanFactory.destroySingleton(beanName);
+            if (bean instanceof DisposableBean) {
+                try {
+                    ((DisposableBean) bean).destroy();
+                } catch (Exception e) {
+                    // 处理销毁时的异常
+                }
+            }
+        }
     }
 }

@@ -1,7 +1,8 @@
 package com.gbbdxstx.model.dto.user;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 用户更新请求
@@ -24,11 +25,6 @@ public class UserUpdateRequest implements Serializable {
      * 用户头像
      */
     private String userAvatar;
-
-    /**
-     * 简介
-     */
-    private String userProfile;
 
     /**
      * 用户角色：user/admin/ban

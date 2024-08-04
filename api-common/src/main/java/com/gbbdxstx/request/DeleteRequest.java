@@ -17,5 +17,10 @@ public class DeleteRequest implements Serializable {
      */
     private Long id;
 
+    /**
+     * 批量ids
+     */
+    private Long[] ids;
+
     private static final long serialVersionUID = 1L;
 }

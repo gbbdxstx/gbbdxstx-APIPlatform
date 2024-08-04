@@ -69,15 +69,16 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             return response.setComplete();
         }
 
-        // 3. 用户鉴权(判断 ak,sk 是否合法
+        // 3. 用户鉴权(判断 ak,sk 是否合法)
         HttpHeaders headers = request.getHeaders();
         String accessKey = headers.getFirst("accessKey");
         String nonce = headers.getFirst("nonce");
+        // 请求体
         String encodedBody = headers.getFirst("body");
         String body = URLDecoder.decode(encodedBody, StandardCharsets.UTF_8);
         String timestamp = headers.getFirst("timestamp");
         String sign = headers.getFirst("sign"); // 用户传过来的密钥
-        // todo 实际情况去数据库中查询是否分配给用户
+        // 实际情况去数据库中查询是否分配给用户
         User invokeUser = null;
         try {
             invokeUser = demoService.getInvokeUser(accessKey);
@@ -113,8 +114,16 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         if (interfaceInfo == null) {
             return handleNoAuth(response);
         }
+
+        // 4. 将网关信息加入请求头中
+        ServerHttpRequest mutatedRequest = request.mutate()
+                .header("Gateway-Flag", "gbbdxstx").build();
+        ServerWebExchange mutatedExchange = exchange.mutate()
+                .request(mutatedRequest)
+                .build();
+
         // 5. 请求转发, 调用模拟接口
-        Mono<Void> filter = chain.filter(exchange);
+        Mono<Void> filter = chain.filter(mutatedExchange);
 
         // 6. 响应日志
         log.info("响应: {}", response.getStatusCode());
